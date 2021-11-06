@@ -1,4 +1,6 @@
 *.yml
 Dockerfile
 .dockerignore
-.env
+**/.env
+docker-compose.yml
+logs/
