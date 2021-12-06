@@ -1,8 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
-import json
+from rest_framework import status
 
+from budget_app.models import Account
+from budget_app.serializer import AccountSerializer
+
+import json
+import traceback
 # Create your views here.
 
 
@@ -46,3 +51,26 @@ def test_sql_query(request):
             return JsonResponse(data)
 
     return JsonResponse(data)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def account_detail(request, pk):
+    print('======================================')
+    print('======================================')
+    print('======================================')
+    try:
+        account = Account.objects.get(pk=pk)
+    except Account.DoesNotExist:
+        return JsonResponse({'message': 'This account does not exist'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+    print('======================================')
+    print('======================================')
+    print('======================================')
+
+    if request.method == 'GET':
+        account_serializer = AccountSerializer(account)
+        print(account_serializer)
+        return JsonResponse(account_serializer.data)
+
+    return JsonResponse({})

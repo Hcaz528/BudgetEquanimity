@@ -1,5 +1,23 @@
 version: "3.8"
 services:
+  web:
+    container_name: BudgetEquanimity_Django_Server
+    build: ./app
+    command: bash -c "python -m pip install --upgrade pip && python -m pip install
+      -r requirements.txt && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./app/:/usr/src/app/
+    ports:
+      - 8000:8000
+    environment:
+      - DB_NAME=budget_equanimity
+      - DB_USER=[DATABASE USER]
+      - DB_PASSWORD=[DATBASE PASSWORD]
+      - DB_HOST=[DATABASE HOST NAME]
+      - DB_PORT=5432
+      - DATABASE=budget_equanimity
+    depends_on:
+      - pg
   pg:
     container_name: BudgetEquanimity_pg_container
     image: postgres:13.2-alpine

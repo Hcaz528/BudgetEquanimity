@@ -13,11 +13,15 @@ from django.db import models
 
 
 class Account(models.Model):
-    username = models.CharField(max_length=350)
+    account_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=350, blank=False)
     email = models.EmailField()
-    password = models.CharField(max_length=350)
-    first_name = models.CharField(max_length=350)
-    last_name = models.CharField(max_length=350)
+    password = models.CharField(max_length=350, blank=False)
+    first_name = models.CharField(max_length=350, blank=False)
+    last_name = models.CharField(max_length=350, blank=False)
+
+    class Meta:
+        db_table = "accounts"
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name
