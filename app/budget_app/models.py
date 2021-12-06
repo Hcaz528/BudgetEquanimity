@@ -1,15 +1,7 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
-# Create your models here.
-# CREATE TABLE accounts (
-#     account_id SERIAL,
-#     username TEXT NOT NULL,
-#     email TEXT NOT NULL,
-#     password TEXT NOT NULL,
-#     first_name TEXT,
-#     last_name TEXT,
-#     PRIMARY KEY (account_id)
-# );
+# Account model from Database
 
 
 class Account(models.Model):
@@ -25,6 +17,21 @@ class Account(models.Model):
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name
+
+# Budget model from Database
+
+
+class Budget(models.Model):
+    budget_id = models.AutoField(primary_key=True)
+    year = models.DateField()
+    type = models.CharField(max_length=350)
+    budgets = JSONField()
+
+    class Meta:
+        db_table = "budgets"
+
+    def __int__(self):
+        return self.budget_id
 
 # DROP TABLE IF EXISTS budgets;
 # CREATE TABLE budgets (
