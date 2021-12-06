@@ -2,5 +2,16 @@ Dockerfile
 .dockerignore
 **/.env
 docker-compose.yml
+docker-compose *
 logs/
 SetUpScript
+TestingSQLScripts
+venv
+db.sqlite3
+*.txt
+*.pip
+CACHE
+test.py
+__pycache__
+*.log
+*.logs

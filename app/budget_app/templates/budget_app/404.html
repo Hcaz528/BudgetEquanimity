@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404</title>
+    {% load static %}
+    {% load compress %}
+
+    {% compress css %}
+    <link type="text/x-scss" href="{% static '/styles/style.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+    <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+    <!-- <link rel="stylesheet" type='text/css' href="{% static '/styles/style.css' %}"> -->
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="glitch" data-text="404 - PAGE NOT FOUND">404 - PAGE NOT FOUND</div>
+        <div class="glow">404 - PAGE NOT FOUND</div>
+        <p class="subtitle">IDOLLESS</p>
+    </div>
+    <div class="scanlines"></div>
+
+    <div>
+        <li>{{ resource }}</li>
+    </div>
+</body>
+
+</html>
