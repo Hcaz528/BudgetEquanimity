@@ -1,5 +1,5 @@
 # BudgetEquanimity
----
+
 ## A clone of my favorite budgetting app [EveryDollar](https://www.ramseysolutions.com/ramseyplus/everydollar)
 
 ## Documentation
