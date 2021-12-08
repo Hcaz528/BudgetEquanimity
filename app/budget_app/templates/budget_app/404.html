@@ -7,12 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404</title>
     {% load static %}
-    {% load compress %}
-
-    {% compress css %}
-    <link type="text/x-scss" href="{% static '/styles/style.scss' %}" rel="stylesheet" media="screen">
-    {% endcompress %}
-    <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+    <link type="text/css" href="{% static '/styles/css/style.css' %}" rel="stylesheet" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'
+        crossorigin="anonymous">
     <!-- <link rel="stylesheet" type='text/css' href="{% static '/styles/style.css' %}"> -->
 
 </head>

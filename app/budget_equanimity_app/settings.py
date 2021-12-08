@@ -35,7 +35,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'compressor',
+    # 'compressor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -132,21 +132,21 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-STATIC_ROOT = BASE_DIR / 'static'
-SASS_PROCESSOR_ROOT = STATIC_ROOT
+# STATIC_ROOT = BASE_DIR / 'static'
+# SASS_PROCESSOR_ROOT = STATIC_ROOT
 
 # Added for SCSS precompiling
-STATICFILES_FINDERS = [
-    'compressor.finders.CompressorFinder',
-]
+# STATICFILES_FINDERS = [
+#     'compressor.finders.CompressorFinder',
+# ]
 
 STATIC_URL = '/static/'
 # STATIC_URL = os.path.join(BASE_DIR, "static")
 
 # Added for Precompilers
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'django_libsass.SassCompiler'),
-)
+# COMPRESS_PRECOMPILERS = (
+#     ('text/x-scss', 'django_libsass.SassCompiler'),
+# )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

@@ -15,3 +15,5 @@ test.py
 __pycache__
 *.log
 *.logs
+___Prequirements.pip
+dev_box
