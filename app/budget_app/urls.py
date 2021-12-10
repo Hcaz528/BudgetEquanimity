@@ -11,6 +11,8 @@ urlpatterns = [
     path('api/0/budget/<int:pk>', views.budget_detail),
     path('api/0/budget/<int:pk>/<int:year>/<int:month>',
          views.budget_detail_filtered),
+    path('api/0/budget/<int:pk>/<int:year>',
+         views.budget_detail_filtered),
     # path('api/0/budget/<int:pk>', views.budget_detail),
 
     # 404 Stuff
