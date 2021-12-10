@@ -10,7 +10,7 @@ def print_vs_logging():
 
 
 def main():
-    level = logging.DEBUG
+    level = logging.INFO
     fmt = '[%(levelname)s] %(asctime)s - %(message)s'
     logging.basicConfig(level=level, format=fmt)
     print_vs_logging()

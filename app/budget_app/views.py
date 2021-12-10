@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.db import connection
+
 from rest_framework.decorators import api_view
 from rest_framework import status
 
@@ -8,17 +10,22 @@ from budget_app.serializer import AccountSerializer, BudgetSerializer
 
 import json
 import traceback
+import logging
+
+level = logging.DEBUG
+fmt = '[%(levelname)s] %(asctime)s - %(message)s'
+logging.basicConfig(level=level, format=fmt)
 # Create your views here.
 
 
 def hello_world(request):
-    # print(request)
+    # logging.info(request)
     return render(request, 'budget_app/hello_world.html', {})
 
 
 def NotFound404(request, resource=None):
-    # print(request)
-    print(resource)
+    # logging.info(request)
+    logging.info(resource)
     return render(request, 'budget_app/404.html', {"resource": resource})
 
 
@@ -34,15 +41,16 @@ def test_sql_query(request):
         'is_active': True,
         'count': 28
     }
-    print('===========================')
+    logging.debug('===========================')
 
     if request.method == 'POST':
 
-        print('===========================\nRaw Data: "%s"' % request.body)
+        logging.debug('===========================\nRaw Data: "%s"' %
+                      request.body)
         request_object = json.loads(request.body)
 
         # for k, v in request_object.items():
-        #     print(f'Key: {k}   |  Value: {v}')
+        #     logging.debug(f'Key: {k}   |  Value: {v}')
         if "Premium" in request_object.keys():
             data["Premium"] = request_object["Premium"]
             return JsonResponse(data)
@@ -55,22 +63,22 @@ def test_sql_query(request):
 
 @api_view(['GET', 'POST', 'DELETE'])
 def account_detail(request, pk):
-    print('======================================')
-    print('======================================')
-    print('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
     try:
         account = Account.objects.get(pk=pk)
     except Account.DoesNotExist:
         return JsonResponse({'message': 'This account does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
 
-    print('======================================')
-    print('======================================')
-    print('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
 
     if request.method == 'GET':
         account_serializer = AccountSerializer(account)
-        print(account_serializer)
+        logging.info(account_serializer)
         return JsonResponse(account_serializer.data)
 
     return JsonResponse({})
@@ -78,22 +86,23 @@ def account_detail(request, pk):
 
 @api_view(['GET', 'POST', 'DELETE'])
 def budget_detail(request, pk):
-    print('======================================')
-    print('======================================')
-    print('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
     try:
         budget = Budget.objects.get(pk=pk)
     except Budget.DoesNotExist:
         return JsonResponse({'message': 'This budget does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
 
-    print('======================================')
-    print('======================================')
-    print('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
 
     if request.method == 'GET':
+        # logging.debug(budget.budgets)
         budget_serializer = BudgetSerializer(budget)
-        print(budget_serializer)
+        logging.info(budget_serializer)
         return JsonResponse(budget_serializer.data)
 
     # TODO
@@ -107,25 +116,29 @@ def budget_detail(request, pk):
 
 @api_view(['GET', 'POST', 'DELETE'])
 def budget_detail_filtered(request, pk, year, month):
-    print('======================================')
-    print('======================================')
-    print('======================================')
+    # NOTE Raw Queries must include the primary key
+    # NOTE very helpful --> # print(dir(next(<RawQuerySet>.iterator())))
+    # NOTE There are two methods(hacks that are essentially the same) for handling the RawQuerySet in Django
+    # HACK 1: Create a generator by calling the iterator method and then wrap the result in a next() function
+    # HACK 2: Create a for loop generator [b for b in <RawQuerySet>] and then wrap that in a next() funciton
+
     try:
-        budget = Budget.objects.filter(pk=pk, budgets__year='2021')
+        budget = Budget.objects.raw(
+            f'''SELECT budget_id, budgets FROM budgets WHERE (CAST(budgets -> 'year' AS INTEGER) = {year} AND budget_id = {pk})''')
+
     except Budget.DoesNotExist:
         return JsonResponse({'message': 'This budget does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
-    print(budget.query)
-    print(budget)
-    print('======================================')
-    print('======================================')
-    print('======================================')
+
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
 
     if request.method == 'GET':
-        # budget_serializer = BudgetSerializer(budget)
-        # print(budget_serializer)
-        # return JsonResponse(budget_serializer.data)
-        return JsonResponse({})
+        budget_serializer = BudgetSerializer(
+            next(b for b in budget))  # Method 2 -
+        logging.info(budget_serializer)
+        return JsonResponse(budget_serializer.data)
 
     # TODO
     # - Set Up POST
