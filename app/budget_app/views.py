@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 
 from budget_app.models import Account, Budget
-from budget_app.serializer import AccountSerializer, BudgetSerializer
+from budget_app.serializer import AccountSerializer, BudgetSerializer, BudgetSerializer_mini
 
 import json
 import traceback
@@ -115,27 +115,43 @@ def budget_detail(request, pk):
 
 
 @api_view(['GET', 'POST', 'DELETE'])
-def budget_detail_filtered(request, pk, year, month):
+def budget_detail_filtered(request, pk, year, month=None):
     # NOTE Raw Queries must include the primary key
     # NOTE very helpful --> # print(dir(next(<RawQuerySet>.iterator())))
     # NOTE There are two methods(hacks that are essentially the same) for handling the RawQuerySet in Django
     # HACK 1: Create a generator by calling the iterator method and then wrap the result in a next() function
     # HACK 2: Create a for loop generator [b for b in <RawQuerySet>] and then wrap that in a next() funciton
+    months = ['January', 'February', 'March', 'April', 'May', 'June',
+              'July', 'August', 'September', 'October', 'November', 'December']
+
+    # Query Buidling
+    if month is None:
+        query = f'''SELECT budget_id, budgets FROM budgets WHERE (CAST(budgets -> 'year' AS INTEGER) = {year} AND budget_id = {pk})'''
+    else:
+        query = f'''SELECT budget_id, budgets FROM budgets
+        WHERE (CAST(budgets -> 'year' AS INTEGER) = {year}
+		AND budgets #>'{{budgets,0, month}}' ? '{months[month+1]}' = true
+        AND budget_id = {pk})
+        '''
 
     try:
-        budget = Budget.objects.raw(
-            f'''SELECT budget_id, budgets FROM budgets WHERE (CAST(budgets -> 'year' AS INTEGER) = {year} AND budget_id = {pk})''')
+        budget = Budget.objects.raw(query)
 
     except Budget.DoesNotExist:
         return JsonResponse({'message': 'This budget does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
 
+    # TODO Handle when a month is not present in the RawQuerySet
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug('======================================')
+    logging.debug(budget)
     logging.debug('======================================')
     logging.debug('======================================')
     logging.debug('======================================')
 
     if request.method == 'GET':
-        budget_serializer = BudgetSerializer(
+        budget_serializer = BudgetSerializer_mini(
             next(b for b in budget))  # Method 2 -
         logging.info(budget_serializer)
         return JsonResponse(budget_serializer.data)
