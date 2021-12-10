@@ -125,20 +125,39 @@ def budget_detail_filtered(request, pk, year, month=None):
               'July', 'August', 'September', 'October', 'November', 'December']
 
     # Query Buidling
-    if month is None:
-        query = f'''SELECT budget_id, budgets FROM budgets WHERE (CAST(budgets -> 'year' AS INTEGER) = {year} AND budget_id = {pk})'''
-    else:
-        query = f'''SELECT budget_id, budgets FROM budgets
-        WHERE (CAST(budgets -> 'year' AS INTEGER) = {year}
-		AND budgets #>'{{budgets,0, month}}' ? '{months[month+1]}' = true
-        AND budget_id = {pk})
-        '''
+    try:
+        if month is None:
+            query = f'''SELECT budget_id, budgets FROM budgets WHERE (CAST(budgets -> 'year' AS INTEGER) = {year} AND budget_id = {pk})'''
+        else:
+            query = f'''SELECT budget_id, budgets FROM budgets
+            WHERE (CAST(budgets -> 'year' AS INTEGER) = {year}
+            AND budgets #>'{{budgets,0, month}}' ? '{months[month-1]}' = true
+            AND budget_id = {pk})
+            '''
+    except IndexError:
+        return JsonResponse({'message': 'There is no 13th month'},
+                            status=status.HTTP_404_NOT_FOUND)
 
     try:
         budget = Budget.objects.raw(query)
-
+        response_data = next(b for b in budget)
+        logging.debug(response_data)
     except Budget.DoesNotExist:
         return JsonResponse({'message': 'This budget does not exist'},
+                            status=status.HTTP_404_NOT_FOUND)
+    except BaseException as err:
+        error_response = f"Unexpected {err=}, {type(err)=}"
+
+        logging.debug(error_response)
+        logging.debug(budget.query)
+
+        if(str(type(err)) == "<class 'StopIteration'>"):
+            logging.debug(
+                f"Error most likely stemming from an empty response.\nQuery most likely contains a year or month not yet created for this user\nMonth: {months[month-1]}  |  Year: {year}")
+            return JsonResponse({"error": error_response},
+                                status=status.HTTP_404_NOT_FOUND)
+
+        return JsonResponse({"error": error_response},
                             status=status.HTTP_404_NOT_FOUND)
 
     # TODO Handle when a month is not present in the RawQuerySet
@@ -151,8 +170,7 @@ def budget_detail_filtered(request, pk, year, month=None):
     logging.debug('======================================')
 
     if request.method == 'GET':
-        budget_serializer = BudgetSerializer_mini(
-            next(b for b in budget))  # Method 2 -
+        budget_serializer = BudgetSerializer_mini(response_data)  # Method 2 -
         logging.info(budget_serializer)
         return JsonResponse(budget_serializer.data)
 
