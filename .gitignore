@@ -9,6 +9,7 @@ TestingSQLScripts
 venv
 db.sqlite3
 *.txt
+!requirements.txt
 *.pip
 CACHE
 test.py
