@@ -1,3 +1,7 @@
+import logging
+import traceback
+import json
+from budget_app.serializer import AccountSerializer, BudgetSerializer, BudgetSerializer_mini
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import connection
@@ -6,11 +10,24 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 
 from budget_app.models import Account, Budget
-from budget_app.serializer import AccountSerializer, BudgetSerializer, BudgetSerializer_mini
+from budget_app.tools import tools
+from budget_app.JSONModels import business, everyday, investment, get_outer_shell
 
-import json
-import traceback
-import logging
+# TODO Time shenanigans
+# from datetime import datetime
+
+# now = datetime.now()
+
+# current_time = now.strftime("%B")
+# print("Current Time =", current_time)
+
+
+# load my random JSONModels
+# 'called': lambda **kwargs: caller(**kwargs),
+tools['business'] = lambda **kwargs: business(**kwargs)
+tools['everyday'] = lambda **kwargs: everyday(**kwargs)
+tools['investment'] = lambda **kwargs: investment(**kwargs)
+
 
 level = logging.DEBUG
 fmt = '[%(levelname)s] %(asctime)s - %(message)s'
@@ -124,6 +141,7 @@ def budget_detail_filtered(request, pk, year, month=None):
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
 
+    # TODO create default template
     # Template
     # 1. Fresh
     # 2. Copied Over from last month
@@ -144,12 +162,55 @@ def budget_detail_filtered(request, pk, year, month=None):
     #######      POST METHOD START    ###########
     #############################################
 
+    # If a method is posted it:
+    #  1. creates/modifies a yaer
+    #  2. creates/modifies a month
+
     if request.method == 'POST':
         logging.info(f'{request.method} request to URL path')
 
+        template = None
         request_object = json.loads(request.body)
         logging.debug(request_object)
-        logging.debug(request_object['year'])
+        logging.debug(request_object['template'])
+
+        if request_object['template'] == "FRESH":
+            template = get_outer_shell()
+            inner_shell = tools['everyday'](
+                path="inner_shell_everyday_month_default.json")
+
+            # Cycle template looking for correct type
+            for count, item in enumerate(template['budgets']):
+                print(item, count)
+                if item['type'].lower() == request_object['type'].lower():
+                    template['budgets'][count]['month'][f"{months[request_object['month']-1]}"] = inner_shell
+                    break
+            # template[f"{request_object['type']}"] = inner_shell
+            # f"{request_object['month']}"
+            # template[f'{request_object['type']}'] = inner_shell f"{request_object['month']}"
+            logging.debug("=========================================")
+            logging.debug("template=============")
+            logging.debug(template)
+
+        # Month Area
+        # ------------
+        # TODO Create new Month budget
+        # Create February first
+        if month is not None:
+            # What things can be updated/ created in the month's budget field(?)
+
+            try:
+                pass
+            except BaseException as err:
+                error_response = f"Unexpected {err=}, {type(err)=}"
+
+                logging.debug(error_response)
+
+        # Year Area
+        # ------------
+        # TODO Create new Year budget
+        if month is None:
+            pass
 
     #############################################
     #######      POST METHOD END      ###########
@@ -159,6 +220,8 @@ def budget_detail_filtered(request, pk, year, month=None):
     ########      GET METHOD START    ###########
     #############################################
     if request.method == 'GET':
+        # TODO check the requests for the type of budget it wants returned ==> Everyday:0, Business: 1, Investments:2
+
         logging.info(f'{request.method} request to URL path')
         # Query Buidling
         try:

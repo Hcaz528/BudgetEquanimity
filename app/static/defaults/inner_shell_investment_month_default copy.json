@@ -1,0 +1,169 @@
+{
+    "transactions": [],
+    "Income": {
+        "Income1": {
+            "planned": 0
+        },
+        "Income2": {
+            "planned": 0
+        }
+    },
+    "Debt": {
+        "Credit Card": {
+            "planned": 0
+        },
+        "Car Payment": {
+            "planned": 0
+        },
+        "Student Loan": {
+            "planned": 0
+        },
+        "Medical Bill": {
+            "planned": 0
+        },
+        "Personal Loan": {
+            "planned": 0
+        }
+    },
+    "categories": {
+        "Giving": {
+            "Church": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Charity": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Savings": {
+            "Emergency Fund": {
+                "planned": 0,
+                "transactions": [],
+                "isFund": true
+            }
+        },
+        "Housing": {
+            "Mortgage/Rent": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Water": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Natural Gas": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Electricity": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Cable": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Trash": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Transportation": {
+            "Gas": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Maintenance": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Food": {
+            "Restaurants": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Groceries": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Personal": {
+            "Clothing": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Phone": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Fun Money": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Hair/Cosmetics": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Subscriptions": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Lifestyle": {
+            "Pet Care": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Child Care": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Entertainment": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Miscellaneous": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Health": {
+            "Gym": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Medicine/Vitamins": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Doctor Visits": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Insurance": {
+            "Health Insurance": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Life Insurance": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Auto Insurance": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Homeowner/Renter": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Identity Theft": {
+                "planned": 0,
+                "transactions": []
+            }
+        }
+    }
+}

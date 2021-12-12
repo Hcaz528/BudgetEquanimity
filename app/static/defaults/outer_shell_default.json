@@ -1,0 +1,17 @@
+{
+    "year": 2021,
+    "budgets": [
+        {
+            "type": "Everyday",
+            "month": {}
+        },
+        {
+            "type": "Business",
+            "month": {}
+        },
+        {
+            "type": "Investments",
+            "month": {}
+        }
+    ]
+}

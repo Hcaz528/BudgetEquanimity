@@ -1,0 +1,55 @@
+{
+    "transactions": [],
+    "Income": {
+        "Income1": {
+            "planned": 0
+        },
+        "Income2": {
+            "planned": 0
+        }
+    },
+    "Debt": {
+        "Credit Card": {
+            "planned": 0
+        },
+        "Car Payment": {
+            "planned": 0
+        },
+        "Business Loan": {
+            "planned": 0
+        },
+        "Personal Loan": {
+            "planned": 0
+        }
+    },
+    "categories": {
+        "Recurring Expenses": {
+            "Manufacturer": {
+                "planned": 0,
+                "transactions": []
+            },
+            "XaaS Provider": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Web Hosting": {
+                "planned": 0,
+                "transactions": []
+            }
+        },
+        "Pay Roll": {
+            "Employees": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Service": {
+                "planned": 0,
+                "transactions": []
+            },
+            "Contractors": {
+                "planned": 0,
+                "transactions": []
+            }
+        }
+    }
+}
