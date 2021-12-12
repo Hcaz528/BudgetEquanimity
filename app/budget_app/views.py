@@ -174,6 +174,10 @@ def budget_detail_filtered(request, pk, year, month=None):
         logging.debug(request_object)
         logging.debug(request_object['template'])
 
+        # TODO If it is not going to be a fresh template load the template from last month and substitute in in for next month/ year-month
+        # if request_object['template'] == "FromLast":
+        #     template = READ DATABASE
+
         if request_object['template'] == "FRESH":
             template = get_outer_shell()
             inner_shell = tools['everyday'](
