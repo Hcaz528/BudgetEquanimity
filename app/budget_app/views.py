@@ -170,9 +170,27 @@ def budget_detail_filtered(request, pk, year, month=None):
         logging.info(f'{request.method} request to URL path')
 
         template = None
+        template_for_requested_year = None
+        current_template = None
         request_object = json.loads(request.body)
         logging.debug(request_object)
         logging.debug(request_object['template'])
+
+        # TODO Check to see if there is a budget for the target year
+        # TODO If a budget doesn't already exist for the target year then a fresh one will be made
+        try:
+            budget = Budget.objects.raw(
+                f'''SELECT budget_id, year FROM budgets WHERE to_char(year, 'YYYY')::integer = {request_object['year']}''')
+            response_data = next(b for b in budget)
+            logging.debug("=====================response_data")
+            logging.debug(getattr(response_data, 'year'))
+            template_for_requested_year = getattr(response_data, 'year')
+            if template_for_requested_year is not None:
+                current_template = getattr(response_data, 'budgets')
+                # TODO build this out
+            logging.debug("=====================response_data")
+        except BaseException as err:
+            error_response = f"Unexpected {err=}, {type(err)=}"
 
         # TODO If it is not going to be a fresh template load the template from last month and substitute in in for next month/ year-month
         # if request_object['template'] == "FromLast":
@@ -180,18 +198,20 @@ def budget_detail_filtered(request, pk, year, month=None):
 
         if request_object['template'] == "FRESH":
             template = get_outer_shell()
-            inner_shell = tools['everyday'](
+            # Below code results in:
+            #         inner_shell = tools["everyday"](path="inner_shell_everyday_month_default.json")
+            # OR      inner_shell = tools["business"]()
+            # OR      inner_shell = tools["investment"]()
+            inner_shell = tools[request_object['type'].lower()](
                 path="inner_shell_everyday_month_default.json")
 
             # Cycle template looking for correct type
             for count, item in enumerate(template['budgets']):
-                print(item, count)
                 if item['type'].lower() == request_object['type'].lower():
+                    # Below code results in something like:
+                    #         template['budgets'][0]['month']['March'] = inner_shell
                     template['budgets'][count]['month'][f"{months[request_object['month']-1]}"] = inner_shell
                     break
-            # template[f"{request_object['type']}"] = inner_shell
-            # f"{request_object['month']}"
-            # template[f'{request_object['type']}'] = inner_shell f"{request_object['month']}"
             logging.debug("=========================================")
             logging.debug("template=============")
             logging.debug(template)
@@ -239,7 +259,7 @@ def budget_detail_filtered(request, pk, year, month=None):
                 AND budget_id = {pk})
                 '''
         except IndexError:
-            return JsonResponse({'message': 'There is no 13th month'},
+            return JsonResponse({'message': 'There is no 13th, 14th, or nth month that is not between 1 - 12'},
                                 status=status.HTTP_404_NOT_FOUND)
 
         try:
