@@ -15,6 +15,12 @@ class BudgetSerializer(serializers.ModelSerializer):
         fields = ('budget_id', 'year', 'budgets')
 
 
+class BudgetSerializer_new(serializers.ModelSerializer):
+    class Meta:
+        model = Budget
+        fields = ('budget_id', 'year', 'type', 'budgets')
+
+
 class BudgetSerializer_mini(serializers.ModelSerializer):
     class Meta:
         model = Budget

@@ -1,7 +1,7 @@
 import logging
 import traceback
 import json
-from budget_app.serializer import AccountSerializer, BudgetSerializer, BudgetSerializer_mini
+from budget_app.serializer import AccountSerializer, BudgetSerializer, BudgetSerializer_mini, BudgetSerializer_new
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import connection
@@ -13,6 +13,17 @@ from budget_app.models import Account, Budget
 from budget_app.tools import tools
 from budget_app.JSONModels import business, everyday, investment, get_outer_shell
 
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 # TODO Time shenanigans
 # from datetime import datetime
 
@@ -30,9 +41,15 @@ tools['investment'] = lambda **kwargs: investment(**kwargs)
 
 
 level = logging.DEBUG
-fmt = '[%(levelname)s] %(asctime)s - %(message)s'
+fmt = bcolors.FAIL+'[%(levelname)s]    '+bcolors.ENDC + \
+    bcolors.WARNING+'%(asctime)s - %(message)s'+bcolors.ENDC
+# fmt = '[%(levelname)s] %(asctime)s - %(message)s'
 logging.basicConfig(level=level, format=fmt)
 # Create your views here.
+
+
+def decompose_next(generator):
+    return next((g for g in generator), None)
 
 
 def hello_world(request):
@@ -141,22 +158,7 @@ def budget_detail_filtered(request, pk, year, month=None):
     months = ['January', 'February', 'March', 'April', 'May', 'June',
               'July', 'August', 'September', 'October', 'November', 'December']
 
-    # TODO create default template
-    # Template
-    # 1. Fresh
-    # 2. Copied Over from last month
-    # Catgories
-    # Income -- Forever Category
-    # Giving
-    # Savings
-    # Housing
-    # Transportation
-    # Food
-    # Personal
-    # Lifestyle
-    # Health
-    # Insurance
-    # Debt -- Forever Category
+    # TODO Overwrite a month
 
     #############################################
     #######      POST METHOD START    ###########
@@ -167,28 +169,63 @@ def budget_detail_filtered(request, pk, year, month=None):
     #  2. creates/modifies a month
 
     if request.method == 'POST':
-        logging.info(f'{request.method} request to URL path')
 
-        template = None
+        logging.info(f'{request.method} request to URL path')
+        template = None  # Outer Template
         template_for_requested_year = None
         current_template = None
         request_object = json.loads(request.body)
+        # TODO build this out
+        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+        # Create a function that makes the outside shell of the json    |   Either fresh or from DB
+        def outer_shell():
+            # fresh
+            # from db
+            pass
+
+        # Create a function that makes the inside  shell of the json    |   Either fresh or from DB
+        def inner_shell():
+            # fresh
+            # from db
+            pass
+
+        # Have functions assimilate with each other once the appropriate data has been created or found
+        def shell_assimilation():
+            pass
+
+        # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
         logging.debug(request_object)
         logging.debug(request_object['template'])
 
-        # TODO Check to see if there is a budget for the target year
-        # TODO If a budget doesn't already exist for the target year then a fresh one will be made
+        # Check to see if there is a budget for the target year
+        # If a budget doesn't already exist for the target year then a fresh one will be made
         try:
+            # Find the target year from DB
+            logging.debug("=====================querying db")
             budget = Budget.objects.raw(
                 f'''SELECT budget_id, year FROM budgets WHERE to_char(year, 'YYYY')::integer = {request_object['year']}''')
-            response_data = next(b for b in budget)
+            logging.debug(budget.query)
+            logging.debug("=====================querying db")
+
+            # Extract data from the generator object
+            # Check to see it the iterator has a next, if not return None
+            response_data = decompose_next(budget)
             logging.debug("=====================response_data")
-            logging.debug(getattr(response_data, 'year'))
-            template_for_requested_year = getattr(response_data, 'year')
-            if template_for_requested_year is not None:
+
+            # Check that there is data from the query
+            # Make/ Find Budget for target year
+            if response_data is not None:
+                template_for_requested_year = getattr(response_data, 'year')
                 current_template = getattr(response_data, 'budgets')
-                # TODO build this out
+            else:
+                logging.debug(
+                    '\n\nNo budgets; Create New budget for this year\n\n\n')
+            template = get_outer_shell() if current_template is None else current_template
+            template['year'] = request_object['year']
             logging.debug("=====================response_data")
+
         except BaseException as err:
             error_response = f"Unexpected {err=}, {type(err)=}"
 
@@ -196,25 +233,53 @@ def budget_detail_filtered(request, pk, year, month=None):
         # if request_object['template'] == "FromLast":
         #     template = READ DATABASE
 
-        if request_object['template'] == "FRESH":
-            template = get_outer_shell()
+        if request_object['template'] == "FRESH" and current_template is None:
             # Below code results in:
             #         inner_shell = tools["everyday"](path="inner_shell_everyday_month_default.json")
             # OR      inner_shell = tools["business"]()
             # OR      inner_shell = tools["investment"]()
-            inner_shell = tools[request_object['type'].lower()](
-                path="inner_shell_everyday_month_default.json")
 
             # Cycle template looking for correct type
             for count, item in enumerate(template['budgets']):
                 if item['type'].lower() == request_object['type'].lower():
                     # Below code results in something like:
                     #         template['budgets'][0]['month']['March'] = inner_shell
-                    template['budgets'][count]['month'][f"{months[request_object['month']-1]}"] = inner_shell
+                    logging.debug(
+                        f"\n{template['budgets'][count]['month']}\n")
+                    target_month = f"{months[request_object['month']-1]}"
+                    if target_month in template['budgets'][count]['month']:
+                        logging.debug(
+                            f"{request_object['month']} was already present in {request_object['year']}")
+                        break
+                    else:
+                        inner_shell = tools[request_object['type'].lower()](
+                            path="inner_shell_everyday_month_default.json")
+                        template['budgets'][count]['month'][f"{target_month}"] = inner_shell
                     break
             logging.debug("=========================================")
+            # logging.debug(request.POST['year'])
             logging.debug("template=============")
+
             logging.debug(template)
+            # current_template = None
+            budget_dos = Budget.objects.get(pk=pk)
+            budget_serializer = BudgetSerializer_new(budget_dos, data={"year": request_object['year'],
+                                                     "type": request_object['type'],
+                                                                       "budgets": template})
+            logging.info(budget_serializer)
+            if budget_serializer.is_valid():
+                budget_serializer.save()
+                return JsonResponse({"method": request.method,
+                                     "response": "Updated",
+                                     "template_type": request_object['template'],
+                                     "data": template,
+                                     "Status": f"There was already data in {str(request_object['month'])+'/'+str(request_object['year'])}"})
+        elif current_template is not None:
+            return JsonResponse({"method": request.method,
+                                 "response": "Updated",
+                                 "template_type": request_object['template'],
+                                 "data": None,
+                                 "Status": f"There was already data in {str(request_object['month'])+'/'+str(request_object['year'])}"})
 
         # Month Area
         # ------------
@@ -235,6 +300,8 @@ def budget_detail_filtered(request, pk, year, month=None):
         # TODO Create new Year budget
         if month is None:
             pass
+
+        return JsonResponse({"method": request.method, "response": "Updated"})
 
     #############################################
     #######      POST METHOD END      ###########

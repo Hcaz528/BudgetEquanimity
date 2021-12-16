@@ -34,18 +34,10 @@ class Budget(models.Model):
     def __int__(self):
         return self.budget_id
 
-# DROP TABLE IF EXISTS budgets;
-# CREATE TABLE budgets (
-#     budget_id SERIAL,
-#     year DATE NOT NULL,
-#     type TEXT NOT NULL,
-#     budgets JSONB,
-#     PRIMARY KEY (budget_id)
-# );
 
-# DROP TABLE IF EXISTS account_budget;
-# CREATE TABLE account_budget (
-#     account_id INT NOT NULL,
-#     budget_id INT NOT NULL,
-#     PRIMARY KEY (account_id, budget_id)
-# );
+class account_budget(models.Model):
+    class Meta:
+        db_table = "account_budget"
+
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
